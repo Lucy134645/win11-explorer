@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Windows 11 Explorer
+GenericName=File Manager
+Comment=Windows 11 File Explorer replica for Linux
+Exec=/home/apex/antigravity/elegant-carson/run.sh %U
+Icon=/home/apex/antigravity/elegant-carson/win11_explorer/resources/icons/explorer.png
+Terminal=false
+Type=Application
+Categories=System;FileTools;FileManager;Utility;
+MimeType=inode/directory;
+Keywords=folder;manager;explore;disk;filesystem;windows;
+StartupNotify=true
+StartupWMClass=File Explorer
