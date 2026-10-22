@@ -7,7 +7,7 @@ Thank you for considering contributing to Windows 11 Explorer!
 1. **Fork the Repository** on GitHub.
 2. **Clone your fork**:
    ```bash
-   git clone https://github.com/<your-username>/win11-explorer.git
+   git clone https://github.com/Lucy134645/win11-explorer.git
    cd win11-explorer
    ```
 3. **Set up a Virtual Environment**:

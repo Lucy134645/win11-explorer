@@ -48,9 +48,9 @@ dependencies = [
 win11-explorer = "win11_explorer.main:main"
 
 [project.urls]
-Homepage = "https://github.com/apex/win11-explorer"
-Repository = "https://github.com/apex/win11-explorer"
-Issues = "https://github.com/apex/win11-explorer/issues"
+Homepage = "https://github.com/Lucy134645/win11-explorer"
+Repository = "https://github.com/Lucy134645/win11-explorer"
+Issues = "https://github.com/Lucy134645/win11-explorer/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

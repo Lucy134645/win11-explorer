@@ -80,7 +80,7 @@ A pixel-perfect, feature-complete **1:1 replica of the modern Windows 11 File Ex
 ### Option 1: Arch Linux (PKGBUILD / AUR)
 
 ```bash
-git clone https://github.com/apex/win11-explorer.git
+git clone https://github.com/Lucy134645/win11-explorer.git
 cd win11-explorer
 makepkg -si
 ```
@@ -88,7 +88,7 @@ makepkg -si
 ### Option 2: One-Click User Install (`~/.local/bin` & App Menu)
 
 ```bash
-git clone https://github.com/apex/win11-explorer.git
+git clone https://github.com/Lucy134645/win11-explorer.git
 cd win11-explorer
 ./install.sh
 ```
@@ -97,7 +97,7 @@ This links the launcher into `~/.local/bin/win11-explorer` and registers the `.d
 ### Option 3: Python Package (`pip install .`)
 
 ```bash
-git clone https://github.com/apex/win11-explorer.git
+git clone https://github.com/Lucy134645/win11-explorer.git
 cd win11-explorer
 python3 -m venv .venv
 source .venv/bin/activate
