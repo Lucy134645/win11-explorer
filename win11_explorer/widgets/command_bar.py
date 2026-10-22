@@ -1,7 +1,7 @@
 """
 Windows 11 Command Bar (Ribbon) widget.
 Includes New button with dropdown, Cut/Copy/Paste/Rename/Share/Delete action buttons,
-Sort dropdown, View options dropdown, and More (...) menu.
+Sort dropdown, View options dropdown, Details pane toggle, and More (...) menu.
 """
 
 from PyQt6.QtWidgets import (
@@ -24,9 +24,10 @@ class Win11CommandBar(QWidget):
     renameRequested = pyqtSignal()
     shareRequested = pyqtSignal()
     deleteRequested = pyqtSignal()
-    sortRequested = pyqtSignal(int, Qt.SortOrder)  # column_idx, order
-    viewModeRequested = pyqtSignal(str)           # "details", "large", "medium", "small", "list", "tiles"
+    sortRequested = pyqtSignal(int, Qt.SortOrder)
+    viewModeRequested = pyqtSignal(str)
     toggleHiddenRequested = pyqtSignal(bool)
+    toggleDetailsPaneRequested = pyqtSignal()
     selectAllRequested = pyqtSignal()
     copyPathRequested = pyqtSignal()
     propertiesRequested = pyqtSignal()
@@ -35,17 +36,17 @@ class Win11CommandBar(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("CommandBar")
-        self.setFixedHeight(46)
+        self.setFixedHeight(48)
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(10, 4, 10, 4)
+        layout.setContentsMargins(10, 5, 10, 5)
         layout.setSpacing(4)
 
         # 1. New Button with Dropdown
         self.new_btn = QToolButton(self)
         self.new_btn.setObjectName("NewButton")
         self.new_btn.setIcon(get_icon("new", size=18))
-        self.new_btn.setText(" New")
+        self.new_btn.setText(" New ˅")
         self.new_btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         self.new_btn.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self._setup_new_menu()
@@ -73,7 +74,7 @@ class Win11CommandBar(QWidget):
         # 3. Sort Dropdown
         self.sort_btn = QToolButton(self)
         self.sort_btn.setIcon(get_icon("sort", size=16))
-        self.sort_btn.setText(" Sort")
+        self.sort_btn.setText(" Sort ˅")
         self.sort_btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         self.sort_btn.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self._setup_sort_menu()
@@ -82,15 +83,19 @@ class Win11CommandBar(QWidget):
         # 4. View Dropdown
         self.view_btn = QToolButton(self)
         self.view_btn.setIcon(get_icon("view", size=16))
-        self.view_btn.setText(" View")
+        self.view_btn.setText(" View ˅")
         self.view_btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         self.view_btn.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self._setup_view_menu()
         layout.addWidget(self.view_btn)
 
+        # 5. Details Pane Toggle
+        self.details_btn = self._create_icon_btn("details-pane", "Details pane (Alt+Shift+P)", self.toggleDetailsPaneRequested)
+        layout.addWidget(self.details_btn)
+
         layout.addWidget(self._create_separator())
 
-        # 5. More (...) Menu
+        # 6. More (...) Menu
         self.more_btn = QToolButton(self)
         self.more_btn.setIcon(get_icon("more", size=16))
         self.more_btn.setToolTip("See more")
@@ -103,15 +108,15 @@ class Win11CommandBar(QWidget):
     def _create_separator(self) -> QFrame:
         sep = QFrame(self)
         sep.setFrameShape(QFrame.Shape.VLine)
-        sep.setFixedHeight(22)
-        sep.setStyleSheet("background-color: rgba(255, 255, 255, 0.1); margin: 0 4px;")
+        sep.setFixedHeight(20)
+        sep.setStyleSheet("background-color: rgba(255, 255, 255, 0.08); margin: 0 4px;")
         return sep
 
     def _create_icon_btn(self, icon_name: str, tooltip: str, signal: pyqtSignal) -> QToolButton:
         btn = QToolButton(self)
         btn.setIcon(get_icon(icon_name, size=16))
         btn.setToolTip(tooltip)
-        btn.setFixedSize(32, 32)
+        btn.setFixedSize(34, 34)
         btn.clicked.connect(signal.emit)
         return btn
 
@@ -227,7 +232,6 @@ class Win11CommandBar(QWidget):
 
         menu.addSeparator()
 
-        # Hidden items toggle
         self.act_hidden = menu.addAction("Hidden items")
         self.act_hidden.setCheckable(True)
         self.act_hidden.setChecked(False)

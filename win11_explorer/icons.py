@@ -1,6 +1,6 @@
 """
 Windows 11 Fluent Icon provider for Win11 Explorer.
-Provides crisp, vector-based Fluent Design icons rendered via SVG.
+Provides crisp, vector-based Fluent Design 2 icons rendered via SVG.
 """
 
 from PyQt6.QtGui import QIcon, QPixmap, QPainter, QColor
@@ -8,70 +8,98 @@ from PyQt6.QtSvg import QSvgRenderer
 from PyQt6.QtCore import QByteArray, QSize, Qt
 
 SVGS = {
-    # Windows 11 Yellow Fluent Folder
+    # Windows 11 Authentic Fluent Folder
     "folder": """<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 11C4 8.79086 5.79086 7 8 7H19.1716C20.2324 7 21.2497 7.42143 22 8.17157L25.8284 12H40C42.2091 12 44 13.7909 44 16V37C44 39.2091 42.2091 41 40 41H8C5.79086 41 4 39.2091 4 37V11Z" fill="#FFA000"/>
-        <path d="M4 16.5C4 14.567 5.567 13 7.5 13H40.5C42.433 13 44 14.567 44 16.5V37.5C44 39.433 42.433 41 40.5 41H7.5C5.567 41 4 39.433 4 37.5V16.5Z" fill="#FFCA28"/>
-        <path d="M4 19H44V37C44 39.2091 42.2091 41 40 41H8C5.79086 41 4 39.2091 4 37V19Z" fill="#FFD54F"/>
+        <defs>
+            <linearGradient id="backGrad" x1="4" y1="7" x2="4" y2="41" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#EAA600"/>
+                <stop offset="100%" stop-color="#C68400"/>
+            </linearGradient>
+            <linearGradient id="frontGrad" x1="4" y1="15" x2="4" y2="41" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FFE464"/>
+                <stop offset="30%" stop-color="#FFD13B"/>
+                <stop offset="100%" stop-color="#FFB900"/>
+            </linearGradient>
+            <linearGradient id="sheetGrad" x1="8" y1="11" x2="40" y2="20" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#E1DFDD" stop-opacity="0.5"/>
+            </linearGradient>
+        </defs>
+        <!-- Back Folder Flap -->
+        <path d="M4 11C4 8.79086 5.79086 7 8 7H18.5C19.8 7 21 7.6 21.8 8.6L24.8 12.2C25.4 12.7 26.2 13 27 13H40C42.2091 13 44 14.7909 44 17V37C44 39.2091 42.2091 41 40 41H8C5.79086 41 4 39.2091 4 37V11Z" fill="url(#backGrad)"/>
+        <!-- Sheet Preview inside folder -->
+        <rect x="7" y="11" width="34" height="10" rx="2" fill="url(#sheetGrad)"/>
+        <!-- Front Folder Pocket with Fluent 3D curve -->
+        <path d="M4 17C4 15.3431 5.34315 14 7 14H41C42.6569 14 44 15.3431 44 17V37C44 39.2091 42.2091 41 40 41H8C5.79086 41 4 39.2091 4 37V17Z" fill="url(#frontGrad)"/>
+        <!-- Top highlight line on front pocket -->
+        <path d="M7 14.5H41C42.3807 14.5 43.5 15.6193 43.5 17V18C43.5 16.6193 42.3807 15.5 41 15.5H7C5.61929 15.5 4.5 16.6193 4.5 18V17C4.5 15.6193 5.61929 14.5 7 14.5Z" fill="#FFF6C2" fill-opacity="0.7"/>
     </svg>""",
 
     # Desktop folder
     "folder-desktop": """<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="6" y="8" width="36" height="24" rx="3" fill="#0078D4"/>
-        <rect x="8" y="10" width="32" height="20" rx="2" fill="#2B88D8"/>
-        <path d="M12 24L20 16L28 24H12Z" fill="#60CDFF" opacity="0.6"/>
-        <path d="M22 24L28 18L36 26H22Z" fill="#9CE5FF" opacity="0.8"/>
-        <rect x="22" y="32" width="4" height="6" fill="#005A9E"/>
-        <rect x="16" y="38" width="16" height="3" rx="1.5" fill="#0078D4"/>
+        <rect x="5" y="7" width="38" height="26" rx="4" fill="#0078D4"/>
+        <rect x="7" y="9" width="34" height="22" rx="2.5" fill="#2B88D8"/>
+        <!-- Desktop Wallpaper Preview -->
+        <path d="M7 23L16 15L25 23H7Z" fill="#60CDFF" opacity="0.6"/>
+        <path d="M21 23L28 17L37 25H21Z" fill="#C7E0F4" opacity="0.8"/>
+        <rect x="22" y="33" width="4" height="7" rx="1" fill="#005A9E"/>
+        <rect x="14" y="40" width="20" height="3" rx="1.5" fill="#0078D4"/>
     </svg>""",
 
     # Downloads folder
     "folder-downloads": """<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 11C4 8.79 5.79 7 8 7H19.17C20.23 7 21.25 7.42 22 8.17L25.83 12H40C42.21 12 44 13.79 44 16V37C44 39.21 42.21 41 40 41H8C5.79 41 4 39.21 4 37V11Z" fill="#FFA000"/>
-        <path d="M4 16.5C4 14.57 5.57 13 7.5 13H40.5C42.43 13 44 14.57 44 16.5V37.5C44 39.43 42.43 41 40.5 41H7.5C5.57 41 4 39.43 4 37.5V16.5Z" fill="#FFCA28"/>
+        <!-- Base Yellow Folder -->
+        <path d="M4 11C4 8.79 5.79 7 8 7H18.5C19.8 7 21 7.6 21.8 8.6L24.8 12.2C25.4 12.7 26.2 13 27 13H40C42.21 13 44 14.79 44 17V37C44 39.21 42.21 41 40 41H8C5.79 41 4 39.21 4 37V11Z" fill="#EAA600"/>
+        <path d="M4 17C4 15.34 5.34 14 7 14H41C42.66 14 44 15.34 44 17V37C44 39.21 42.21 41 40 41H8C5.79 41 4 39.21 4 37V17Z" fill="#FFC828"/>
+        <!-- Download Circle Badge -->
         <circle cx="24" cy="27" r="11" fill="#0078D4"/>
-        <path d="M24 20V31M24 31L20 27M24 31L28 27" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M19 34H29" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M24 19V30M24 30L19.5 25.5M24 30L28.5 25.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M19 33.5H29" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
     </svg>""",
 
     # Documents folder
     "folder-documents": """<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 11C4 8.79 5.79 7 8 7H19.17C20.23 7 21.25 7.42 22 8.17L25.83 12H40C42.21 12 44 13.79 44 16V37C44 39.21 42.21 41 40 41H8C5.79 41 4 39.21 4 37V11Z" fill="#FFA000"/>
-        <path d="M4 16.5C4 14.57 5.57 13 7.5 13H40.5C42.43 13 44 14.57 44 16.5V37.5C44 39.43 42.43 41 40.5 41H7.5C5.57 41 4 39.43 4 37.5V16.5Z" fill="#FFCA28"/>
-        <rect x="16" y="19" width="16" height="19" rx="2" fill="#FFFFFF"/>
-        <rect x="19" y="23" width="10" height="2" rx="1" fill="#0078D4"/>
-        <rect x="19" y="27" width="10" height="2" rx="1" fill="#B0D5FF"/>
-        <rect x="19" y="31" width="7" height="2" rx="1" fill="#B0D5FF"/>
+        <path d="M4 11C4 8.79 5.79 7 8 7H18.5C19.8 7 21 7.6 21.8 8.6L24.8 12.2C25.4 12.7 26.2 13 27 13H40C42.21 13 44 14.79 44 17V37C44 39.21 42.21 41 40 41H8C5.79 41 4 39.21 4 37V11Z" fill="#EAA600"/>
+        <path d="M4 17C4 15.34 5.34 14 7 14H41C42.66 14 44 15.34 44 17V37C44 39.21 42.21 41 40 41H8C5.79 41 4 39.21 4 37V17Z" fill="#FFC828"/>
+        <!-- Document Sheet -->
+        <rect x="15" y="19" width="18" height="20" rx="2" fill="#FFFFFF"/>
+        <rect x="18" y="23" width="12" height="2" rx="1" fill="#0078D4"/>
+        <rect x="18" y="27" width="12" height="2" rx="1" fill="#90C4F5"/>
+        <rect x="18" y="31" width="8" height="2" rx="1" fill="#90C4F5"/>
+        <rect x="18" y="35" width="10" height="2" rx="1" fill="#C0DEFB"/>
     </svg>""",
 
     # Pictures folder
     "folder-pictures": """<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 11C4 8.79 5.79 7 8 7H19.17C20.23 7 21.25 7.42 22 8.17L25.83 12H40C42.21 12 44 13.79 44 16V37C44 39.21 42.21 41 40 41H8C5.79 41 4 39.21 4 37V11Z" fill="#FFA000"/>
-        <path d="M4 16.5C4 14.57 5.57 13 7.5 13H40.5C42.43 13 44 14.57 44 16.5V37.5C44 39.43 42.43 41 40.5 41H7.5C5.57 41 4 39.43 4 37.5V16.5Z" fill="#FFCA28"/>
-        <rect x="15" y="19" width="18" height="17" rx="2" fill="#107C41"/>
-        <circle cx="20" cy="24" r="2" fill="#FFE082"/>
-        <path d="M15 32L21 26L26 31L29 28L33 33V34C33 35.1 32.1 36 31 36H17C15.9 36 15 35.1 15 34V32Z" fill="#81C784"/>
+        <path d="M4 11C4 8.79 5.79 7 8 7H18.5C19.8 7 21 7.6 21.8 8.6L24.8 12.2C25.4 12.7 26.2 13 27 13H40C42.21 13 44 14.79 44 17V37C44 39.21 42.21 41 40 41H8C5.79 41 4 39.21 4 37V11Z" fill="#EAA600"/>
+        <path d="M4 17C4 15.34 5.34 14 7 14H41C42.66 14 44 15.34 44 17V37C44 39.21 42.21 41 40 41H8C5.79 41 4 39.21 4 37V17Z" fill="#FFC828"/>
+        <!-- Photo Card -->
+        <rect x="14" y="19" width="20" height="19" rx="2" fill="#107C41"/>
+        <circle cx="19" cy="24" r="2.2" fill="#FFEB80"/>
+        <path d="M14 33L21 26L26 31L29 28L34 33.5V36C34 37.1 33.1 38 32 38H16C14.9 38 14 37.1 14 36V33Z" fill="#81C784"/>
     </svg>""",
 
     # Music folder
     "folder-music": """<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 11C4 8.79 5.79 7 8 7H19.17C20.23 7 21.25 7.42 22 8.17L25.83 12H40C42.21 12 44 13.79 44 16V37C44 39.21 42.21 41 40 41H8C5.79 41 4 39.21 4 37V11Z" fill="#FFA000"/>
-        <path d="M4 16.5C4 14.57 5.57 13 7.5 13H40.5C42.43 13 44 14.57 44 16.5V37.5C44 39.43 42.43 41 40.5 41H7.5C5.57 41 4 39.43 4 37.5V16.5Z" fill="#FFCA28"/>
-        <circle cx="24" cy="28" r="10" fill="#E81123"/>
-        <path d="M22 24V31M22 31C22 32.1 21.1 33 20 33C18.9 33 18 32.1 18 31C18 29.9 18.9 29 20 29C20.4 29 20.7 29.1 21 29.3V24L27 22.5V29M27 29C27 30.1 26.1 31 25 31C23.9 31 23 30.1 23 29C23 27.9 23.9 27 25 27C25.4 27 25.7 27.1 26 27.3V22.5L22 24Z" fill="white"/>
+        <path d="M4 11C4 8.79 5.79 7 8 7H18.5C19.8 7 21 7.6 21.8 8.6L24.8 12.2C25.4 12.7 26.2 13 27 13H40C42.21 13 44 14.79 44 17V37C44 39.21 42.21 41 40 41H8C5.79 41 4 39.21 4 37V11Z" fill="#EAA600"/>
+        <path d="M4 17C4 15.34 5.34 14 7 14H41C42.66 14 44 15.34 44 17V37C44 39.21 42.21 41 40 41H8C5.79 41 4 39.21 4 37V17Z" fill="#FFC828"/>
+        <!-- Orange/Red Music Disc Badge -->
+        <circle cx="24" cy="28" r="11" fill="#E84D23"/>
+        <path d="M22 23V31M22 31C22 32.1 21.1 33 20 33C18.9 33 18 32.1 18 31C18 29.9 18.9 29 20 29C20.4 29 20.7 29.1 21 29.3V23L27 21.5V29M27 29C27 30.1 26.1 31 25 31C23.9 31 23 30.1 23 29C23 27.9 23.9 27 25 27C25.4 27 25.7 27.1 26 27.3V21.5L22 23Z" fill="white"/>
     </svg>""",
 
     # Videos folder
     "folder-videos": """<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 11C4 8.79 5.79 7 8 7H19.17C20.23 7 21.25 7.42 22 8.17L25.83 12H40C42.21 12 44 13.79 44 16V37C44 39.21 42.21 41 40 41H8C5.79 41 4 39.21 4 37V11Z" fill="#FFA000"/>
-        <path d="M4 16.5C4 14.57 5.57 13 7.5 13H40.5C42.43 13 44 14.57 44 16.5V37.5C44 39.43 42.43 41 40.5 41H7.5C5.57 41 4 39.43 4 37.5V16.5Z" fill="#FFCA28"/>
-        <rect x="15" y="20" width="18" height="15" rx="3" fill="#8764B8"/>
-        <path d="M22 24L27 27.5L22 31V24Z" fill="white"/>
+        <path d="M4 11C4 8.79 5.79 7 8 7H18.5C19.8 7 21 7.6 21.8 8.6L24.8 12.2C25.4 12.7 26.2 13 27 13H40C42.21 13 44 14.79 44 17V37C44 39.21 42.21 41 40 41H8C5.79 41 4 39.21 4 37V11Z" fill="#EAA600"/>
+        <path d="M4 17C4 15.34 5.34 14 7 14H41C42.66 14 44 15.34 44 17V37C44 39.21 42.21 41 40 41H8C5.79 41 4 39.21 4 37V17Z" fill="#FFC828"/>
+        <!-- Purple Film Clapperboard -->
+        <rect x="14" y="20" width="20" height="16" rx="3" fill="#8764B8"/>
+        <path d="M22 24.5L28 28L22 31.5V24.5Z" fill="white"/>
     </svg>""",
 
     # Home / User Folder
     "folder-home": """<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M24 7L6 22H11V39C11 40.1 11.9 41 13 41H20V30C20 28.9 20.9 28 22 28H26C27.1 28 28 28.9 28 30V41H35C36.1 41 37 40.1 37 39V22H42L24 7Z" fill="#0078D4"/>
+        <path d="M24 6L6 21H11V39C11 40.1 11.9 41 13 41H20V30C20 28.9 20.9 28 22 28H26C27.1 28 28 28.9 28 30V41H35C36.1 41 37 40.1 37 39V21H42L24 6Z" fill="#0078D4"/>
     </svg>""",
 
     # This PC / Computer
@@ -83,13 +111,17 @@ SVGS = {
         <circle cx="24" cy="20" r="4" fill="#0078D4"/>
     </svg>""",
 
-    # Hard Drive
+    # Hard Drive with activity & capacity
     "drive": """<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="6" y="12" width="36" height="24" rx="4" fill="#D2D0CE"/>
-        <rect x="9" y="15" width="30" height="18" rx="2" fill="#FAF9F8"/>
+        <rect x="6" y="12" width="36" height="24" rx="4" fill="#E1DFDD"/>
+        <rect x="8" y="14" width="32" height="20" rx="2.5" fill="#FAF9F8"/>
+        <!-- Drive bay lines -->
+        <line x1="12" y1="20" x2="30" y2="20" stroke="#8A8886" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Capacity Bar -->
         <rect x="12" y="27" width="24" height="3" rx="1.5" fill="#C8C6C4"/>
         <rect x="12" y="27" width="16" height="3" rx="1.5" fill="#0078D4"/>
-        <circle cx="36" cy="19" r="1.5" fill="#107C41"/>
+        <!-- Activity LED -->
+        <circle cx="36" cy="18" r="1.5" fill="#107C41"/>
     </svg>""",
 
     # Recycle Bin
@@ -100,18 +132,11 @@ SVGS = {
         <path d="M21 21L24 18L27 21M24 19V28M24 28L21 25M24 28L27 25" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>""",
 
-    # Recycle Bin Empty
-    "trash-empty": """<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M13 14L15.5 39C15.7 40.7 17 42 18.7 42H29.3C31 42 32.3 40.7 32.5 39L35 14H13Z" fill="#C8C6C4" opacity="0.6"/>
-        <rect x="10" y="9" width="28" height="4" rx="2" fill="#8A8886"/>
-        <rect x="20" y="6" width="8" height="3" rx="1.5" fill="#605E5C"/>
-    </svg>""",
-
     # Network
     "network": """<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="24" cy="24" r="16" stroke="#0078D4" stroke-width="3" fill="none"/>
-        <ellipse cx="24" cy="24" rx="8" ry="16" stroke="#0078D4" stroke-width="2.5" fill="none"/>
-        <line x1="8" y1="24" x2="40" y2="24" stroke="#0078D4" stroke-width="2.5"/>
+        <ellipse cx="24" cy="24" rx="8" ry="16" stroke="#0078D4" stroke-width="2" fill="none"/>
+        <line x1="8" y1="24" x2="40" y2="24" stroke="#0078D4" stroke-width="2"/>
     </svg>""",
 
     # Navigation: Back
@@ -131,13 +156,35 @@ SVGS = {
 
     # Navigation: Refresh
     "refresh": """<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 12A8 8 0 1 1 18.3 6.7L21 4V10H15L17.5 7.5A6 6 0 1 0 18 12H20Z" fill="currentColor"/>
+        <path d="M19 12A7 7 0 1 1 17.5 7.4L20 5V10H15L17 8A5 5 0 1 0 17 12H19Z" fill="currentColor"/>
     </svg>""",
 
-    # Command Bar: New
+    # Caption: Minimize (─)
+    "cap-min": """<svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.2"/>
+    </svg>""",
+
+    # Caption: Maximize (□)
+    "cap-max": """<svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1.5" y="1.5" width="9" height="9" stroke="currentColor" stroke-width="1.2"/>
+    </svg>""",
+
+    # Caption: Restore (❐)
+    "cap-restore": """<svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3.5 3.5V1.5H10.5V8.5H8.5" stroke="currentColor" stroke-width="1.1"/>
+        <rect x="1.5" y="3.5" width="7" height="7" stroke="currentColor" stroke-width="1.1"/>
+    </svg>""",
+
+    # Caption: Close (✕)
+    "cap-close": """<svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="1.5" y1="1.5" x2="10.5" y2="10.5" stroke="currentColor" stroke-width="1.2"/>
+        <line x1="10.5" y1="1.5" x2="1.5" y2="10.5" stroke="currentColor" stroke-width="1.2"/>
+    </svg>""",
+
+    # Command Bar: New with circle plus
     "new": """<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="12" r="10" fill="#0078D4"/>
-        <path d="M12 7V17M7 12H17" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="12" cy="12" r="9" fill="#0078D4"/>
+        <path d="M12 8V16M8 12H16" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
     </svg>""",
 
     # Command Bar: Cut
@@ -182,8 +229,8 @@ SVGS = {
 
     # Command Bar: Sort
     "sort": """<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 6H14M4 12H11M4 18H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        <path d="M17 9L20 6L23 9M20 6V18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M4 6H13M4 12H10M4 18H7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M16 9L19 6L22 9M19 6V18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>""",
 
     # Command Bar: View
@@ -192,6 +239,13 @@ SVGS = {
         <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/>
         <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/>
         <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/>
+    </svg>""",
+
+    # Command Bar: Details Pane Toggle
+    "details-pane": """<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+        <line x1="15" y1="3" x2="15" y2="21" stroke="currentColor" stroke-width="2"/>
+        <circle cx="18" cy="7" r="1.5" fill="currentColor"/>
     </svg>""",
 
     # Command Bar: More
@@ -209,12 +263,12 @@ SVGS = {
 
     # Chevron Right (for breadcrumb)
     "chevron-right": """<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>""",
 
     # Chevron Down (for dropdown menus)
     "chevron-down": """<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>""",
 
     # Close icon
@@ -251,7 +305,7 @@ SVGS = {
         <path d="M10 8C10 5.8 11.8 4 14 4H26L38 16V40C38 42.2 36.2 44 34 44H14C11.8 44 10 42.2 10 40V8Z" stroke="#B0B0B0" stroke-width="1.5"/>
     </svg>""",
 
-    # File Code / Python / Script
+    # File Code
     "file-code": """<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M10 8C10 5.8 11.8 4 14 4H26L38 16V40C38 42.2 36.2 44 34 44H14C11.8 44 10 42.2 10 40V8Z" fill="#1E1E1E"/>
         <path d="M26 4V16H38" fill="#333333"/>
@@ -288,7 +342,7 @@ SVGS = {
         <path d="M10 8C10 5.8 11.8 4 14 4H26L38 16V40C38 42.2 36.2 44 34 44H14C11.8 44 10 42.2 10 40V8Z" stroke="#B0B0B0" stroke-width="1.5"/>
     </svg>""",
 
-    # File Archive (ZIP / TAR)
+    # File Archive
     "file-archive": """<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M10 8C10 5.8 11.8 4 14 4H26L38 16V40C38 42.2 36.2 44 34 44H14C11.8 44 10 42.2 10 40V8Z" fill="#FCE8B2"/>
         <path d="M26 4V16H38" fill="#FBC02D"/>

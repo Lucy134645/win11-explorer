@@ -1,32 +1,120 @@
 """
-Windows 11 Main File View Container.
-Supports Details View, Large/Medium/Small Icons Grid View, List View, and Tiles View.
+Windows 11 Main File View Container with custom item delegate.
+Supports Details View with hover checkboxes, Large/Medium/Small Icons, List, and Tiles.
 """
 
 from typing import List, Optional
 from PyQt6.QtWidgets import (
     QWidget, QStackedWidget, QTableView, QListView, QVBoxLayout,
-    QHeaderView, QAbstractItemView, QMenu, QInputDialog, QMessageBox
+    QHeaderView, QAbstractItemView, QMenu, QInputDialog, QMessageBox,
+    QStyledItemDelegate, QStyle
 )
 from PyQt6.QtCore import (
-    pyqtSignal, Qt, QModelIndex, QSize, QPoint
+    pyqtSignal, Qt, QModelIndex, QSize, QPoint, QRectF, QRect
 )
-from PyQt6.QtGui import QIcon, QKeySequence, QShortcut
+from PyQt6.QtGui import (
+    QIcon, QKeySequence, QShortcut, QPainter, QColor, QPen, QBrush
+)
 from win11_explorer.models import FileTableModel, FileItem
 from win11_explorer.file_ops import (
     open_with_default, open_terminal, delete_to_trash,
     ExplorerClipboard, ClipboardMode
 )
+from win11_explorer.icons import get_icon
 from win11_explorer.widgets.context_menu import Win11ContextMenu
 from win11_explorer.widgets.properties_dialog import Win11PropertiesDialog
+
+
+class Win11TableDelegate(QStyledItemDelegate):
+    """Windows 11 Table delegate with hover checkboxes and rounded selection."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.select_bg = QColor(255, 255, 255, 20)
+        self.hover_bg = QColor(255, 255, 255, 12)
+        self.border_pen = QPen(QColor(255, 255, 255, 25), 1)
+        self.accent_color = QColor("#60CDFF")
+
+    def sizeHint(self, option, index: QModelIndex) -> QSize:
+        return QSize(100, 36)
+
+    def paint(self, painter: QPainter, option, index: QModelIndex):
+        painter.save()
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        rect = option.rect
+        is_selected = bool(option.state & QStyle.StateFlag.State_Selected)
+        is_hover = bool(option.state & QStyle.StateFlag.State_MouseOver)
+
+        # Draw row highlight
+        bg_rect = rect.adjusted(2, 2, -2, -2)
+        if is_selected:
+            painter.setPen(self.border_pen)
+            painter.setBrush(self.select_bg)
+            painter.drawRoundedRect(bg_rect, 4, 4)
+        elif is_hover:
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(self.hover_bg)
+            painter.drawRoundedRect(bg_rect, 4, 4)
+
+        col = index.column()
+        item: FileItem = index.data(Qt.ItemDataRole.UserRole)
+
+        if col == 0:  # Name Column with Checkbox + Icon + Text
+            x = rect.x() + 8
+
+            # Draw Checkbox on hover / selection (Windows 11 Item Checkbox)
+            if is_hover or is_selected:
+                chk_box = QRectF(x, rect.y() + (rect.height() - 16) / 2, 16, 16)
+                painter.setPen(QPen(QColor("#707070" if not is_selected else "#0078D4"), 1.2))
+                painter.setBrush(QColor("#0078D4" if is_selected else "transparent"))
+                painter.drawRoundedRect(chk_box, 3, 3)
+                if is_selected:
+                    # Draw checkmark
+                    painter.setPen(QPen(QColor("#FFFFFF"), 1.8, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
+                    painter.drawLine(int(chk_box.x() + 4), int(chk_box.y() + 8), int(chk_box.x() + 7), int(chk_box.y() + 11))
+                    painter.drawLine(int(chk_box.x() + 7), int(chk_box.y() + 11), int(chk_box.x() + 12), int(chk_box.y() + 4))
+
+            x += 24  # space after checkbox
+
+            # Draw File Icon
+            icon = get_icon(item.icon_name if item else "file", size=22)
+            icon.paint(painter, x, int(rect.y() + (rect.height() - 22) / 2), 22, 22)
+            x += 30
+
+            # Draw File Name Text
+            text = index.data(Qt.ItemDataRole.DisplayRole) or ""
+            painter.setPen(QColor("#FFFFFF"))
+            font = painter.font()
+            font.setPixelSize(13)
+            painter.setFont(font)
+            text_rect = QRect(x, rect.y(), rect.width() - (x - rect.x()) - 6, rect.height())
+            painter.drawText(text_rect, int(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft), text)
+
+        elif col == 1:  # Date modified
+            text = index.data(Qt.ItemDataRole.DisplayRole) or ""
+            painter.setPen(QColor("#A0A0A0"))
+            painter.drawText(rect.adjusted(6, 0, -6, 0), int(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft), text)
+
+        elif col == 2:  # Type
+            text = index.data(Qt.ItemDataRole.DisplayRole) or ""
+            painter.setPen(QColor("#A0A0A0"))
+            painter.drawText(rect.adjusted(6, 0, -6, 0), int(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft), text)
+
+        elif col == 3:  # Size
+            text = index.data(Qt.ItemDataRole.DisplayRole) or ""
+            painter.setPen(QColor("#A0A0A0"))
+            painter.drawText(rect.adjusted(6, 0, -12, 0), int(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight), text)
+
+        painter.restore()
 
 
 class Win11FileView(QWidget):
     """File View Manager supporting Details, Grid Icons, List, and Tiles."""
 
     folderOpened = pyqtSignal(str)
-    selectionChanged = pyqtSignal(list)       # list of FileItem
-    itemCountChanged = pyqtSignal(int, int, int) # total_items, selected_count, selected_bytes
+    selectionChanged = pyqtSignal(list)
+    itemCountChanged = pyqtSignal(int, int, int)
     refreshRequested = pyqtSignal()
 
     def __init__(self, parent=None):
@@ -46,22 +134,20 @@ class Win11FileView(QWidget):
         self.table_view = QTableView(self)
         self.table_view.setObjectName("DetailsView")
         self.table_view.setModel(self.model)
+        self.table_view.setItemDelegate(Win11TableDelegate(self.table_view))
         self.table_view.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.table_view.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.table_view.setShowGrid(False)
-        self.table_view.setAlternatingRowColors(False)
         self.table_view.verticalHeader().setVisible(False)
         self.table_view.horizontalHeader().setHighlightSections(False)
-        self.table_view.horizontalHeader().setStretchLastSection(False)
         self.table_view.setSortingEnabled(True)
         self.table_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
-        # Configure column widths
         header = self.table_view.horizontalHeader()
-        header.resizeSection(0, 320)  # Name
-        header.resizeSection(1, 150)  # Date
-        header.resizeSection(2, 140)  # Type
-        header.resizeSection(3, 100)  # Size
+        header.resizeSection(0, 360)  # Name
+        header.resizeSection(1, 160)  # Date
+        header.resizeSection(2, 160)  # Type
+        header.resizeSection(3, 110)  # Size
 
         # 2. Icons View (Large / Medium / Small)
         self.icons_view = QListView(self)
@@ -84,30 +170,24 @@ class Win11FileView(QWidget):
         self.list_view.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.list_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
-        # Add views to stack
-        self.stack.addWidget(self.table_view)  # index 0: details
-        self.stack.addWidget(self.icons_view)  # index 1: icons
-        self.stack.addWidget(self.list_view)   # index 2: list
+        self.stack.addWidget(self.table_view)
+        self.stack.addWidget(self.icons_view)
+        self.stack.addWidget(self.list_view)
 
-        # Connect signals
         for view in [self.table_view, self.icons_view, self.list_view]:
             view.doubleClicked.connect(self._on_item_double_clicked)
             view.customContextMenuRequested.connect(self._on_context_menu)
             view.selectionModel().selectionChanged.connect(self._on_selection_changed)
 
-        # Shortcuts
         self._setup_shortcuts()
 
     def _setup_shortcuts(self):
-        # Delete shortcut
         del_sc = QShortcut(QKeySequence.StandardKey.Delete, self)
         del_sc.activated.connect(self.delete_selected)
 
-        # Rename shortcut
         f2_sc = QShortcut(QKeySequence("F2"), self)
         f2_sc.activated.connect(self.rename_selected)
 
-        # Enter to open
         enter_sc = QShortcut(QKeySequence("Return"), self)
         enter_sc.activated.connect(self.open_selected)
 
@@ -138,13 +218,13 @@ class Win11FileView(QWidget):
     def _set_icon_size(self, mode: str):
         if mode == "large":
             self.icons_view.setIconSize(QSize(64, 64))
-            self.icons_view.setGridSize(QSize(96, 100))
+            self.icons_view.setGridSize(QSize(96, 104))
         elif mode == "medium":
             self.icons_view.setIconSize(QSize(48, 48))
-            self.icons_view.setGridSize(QSize(80, 84))
+            self.icons_view.setGridSize(QSize(80, 88))
         elif mode == "small":
             self.icons_view.setIconSize(QSize(32, 32))
-            self.icons_view.setGridSize(QSize(64, 68))
+            self.icons_view.setGridSize(QSize(64, 70))
         elif mode == "tiles":
             self.icons_view.setIconSize(QSize(40, 40))
             self.icons_view.setGridSize(QSize(180, 60))
@@ -202,8 +282,6 @@ class Win11FileView(QWidget):
         has_sel = index.isValid() or bool(self.get_selected_items())
 
         menu = Win11ContextMenu(has_selection=has_sel, parent=self)
-        
-        # Connect context menu actions
         menu.openRequested.connect(self.open_selected)
         menu.cutRequested.connect(self.cut_selected)
         menu.copyRequested.connect(self.copy_selected)
